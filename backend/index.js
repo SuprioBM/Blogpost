@@ -32,6 +32,7 @@ app.use("/", route);
 // Setup socket after all middleware and routes are set
 require("./socket/socket")(io); // This uses the io instance from the server
 
-server.listen(3000, () => {
-  console.log("Server is listening at 3000");
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Server is listening on port ${PORT}`);
 });
