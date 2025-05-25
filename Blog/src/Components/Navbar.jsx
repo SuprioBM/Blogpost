@@ -1,11 +1,11 @@
 import { NavLink } from "react-router-dom";
 import useAuth from "../context/useAuth";
 import { useState, useEffect } from "react";
-import { refreshTokens } from "../Api/api";
+import { api,refreshTokens } from "../Api/api";
 import { FiUser, FiMenu, FiX } from "react-icons/fi";
 
 const Navbar = () => {
-  const { user } = useAuth();
+  const { user,signout } = useAuth();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -21,6 +21,15 @@ const Navbar = () => {
     };
     checkAuthStatus();
   }, [user]);
+
+    const handleSignOut = async () => {
+      try {
+        await api.post("/signout", {}, { withCredentials: true });
+        signout();
+      } catch (error) {
+        console.error("Sign out error:", error);
+      }
+    };
 
   const links = [
     { path: "/", label: "Home" },
@@ -107,6 +116,41 @@ const Navbar = () => {
                 </NavLink>
               </li>
             ))}
+            <div className="lg:hidden flex flex-col space-y-5 text-lg font-semibold text-red-500 ">
+              {!user ? (
+                <>
+                  <NavLink
+                    to="/signin"
+                    onClick={() => setIsMenuOpen(false)}
+                    className={({ isActive }) =>
+                      isActive
+                        ? "text-indigo-900 underline"
+                        : "hover:text-indigo-900 transition"
+                    }
+                  >
+                    Sign In
+                  </NavLink>
+                  <NavLink
+                    to="/signup"
+                    onClick={() => setIsMenuOpen(false)}
+                    className={({ isActive }) =>
+                      isActive
+                        ? "text-indigo-900 underline"
+                        : "hover:text-indigo-900 transition"
+                    }
+                  >
+                    Sign Up
+                  </NavLink>
+                </>
+              ) : (
+                <button
+                  onClick={() => {handleSignOut(),setIsMenuOpen(false)}}
+                  className="text-red-600 hover:text-indigo-900 transition font-semibold"
+                >
+                  Sign Out
+                </button>
+              )}
+            </div>
           </ul>
         </div>
       )}

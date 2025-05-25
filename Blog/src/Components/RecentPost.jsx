@@ -20,6 +20,8 @@ const RecentPost = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+
 
   const handleSignOut = async () => {
     try {
@@ -139,10 +141,10 @@ const RecentPost = () => {
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <header className="flex justify-between items-center px-6 py-4 border-b bg-black shadow-sm sticky top-0 z-50">
-        <h1 className="text-7xl font-extrabold tracking-tight text-red-600 select-none">
+        <h1 className="text-7xl font-extrabold tracking-tight text-red-600 select-none pl-5">
           BlogSite
         </h1>
-        <nav className="space-x-6 text-lg font-semibold text-red-500">
+        <nav className="hidden lg:flex lg:space-x-6 lg:text-lg lg:font-semibold lg:text-red-500 ">
           {!user ? (
             <>
               <NavLink
@@ -169,7 +171,7 @@ const RecentPost = () => {
           ) : (
             <button
               onClick={handleSignOut}
-              className="text-indigo-600 hover:text-indigo-900 transition font-semibold"
+              className="text-red-600 hover:text-indigo-900 transition font-semibold"
             >
               Sign Out
             </button>

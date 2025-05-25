@@ -43,14 +43,14 @@ const SignIn = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="flex flex-col items-center justify-center max-w-sm w-full mx-auto p-6 bg-white bg-opacity-90 shadow-lg rounded-lg border border-gray-200">
+    <div className="flex items-center justify-center min-h-screen text-white">
+      <div className="flex flex-col items-center justify-center max-w-sm w-full mx-auto p-6 bg- bg-opacity-90 shadow-lg rounded-lg border border-gray-200">
         {error && (
           <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-center font-medium">
             {error}
           </div>
         )}
-        <h1 className="border-b-2 border-blue-600 pb-2 mb-5 text-2xl font-semibold text-gray-800">
+        <h1 className="border-b-2 border-blue-600 pb-2 mb-5 text-2xl font-semibold">
           Sign In
         </h1>
 
@@ -58,7 +58,7 @@ const SignIn = () => {
           <div className="mb-5">
             <label
               htmlFor="name"
-              className="block mb-2 text-sm font-medium text-gray-700"
+              className="block mb-2 text-sm font-medium "
             >
               Username
             </label>
@@ -76,7 +76,7 @@ const SignIn = () => {
           <div className="mb-5">
             <label
               htmlFor="password"
-              className="block mb-2 text-sm font-medium text-gray-700"
+              className="block mb-2 text-sm font-medium "
             >
               Password
             </label>
