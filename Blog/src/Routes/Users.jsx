@@ -187,7 +187,7 @@ const Users = () => {
 
       {/* Chatbox */}
       {isChatOpen && (
-        <div className="fixed bottom-5 right-5 max-w-md w-full bg-gray-900/90 backdrop-blur-md border border-gray-700 rounded-2xl shadow-xl flex flex-col max-h-[80vh]">
+        <div className="fixed bottom-5 right-5 max-w-[50vh] w-full bg-gray-900/90 backdrop-blur-md border border-gray-700 rounded-2xl shadow-xl flex flex-col max-h-[80vh]">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-700 rounded-t-2xl">
             <h3 className="text-2xl font-semibold text-indigo-400">
