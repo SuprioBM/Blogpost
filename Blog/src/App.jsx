@@ -8,7 +8,7 @@ import SignUp from './Routes/SignUp';
 import SignIn from './Routes/SignIn';
 import Blog from './Routes/Blog';
 import { AuthProvider } from './context/AuthContext';
-import Footer from './Components/footer';
+import Footer from './Components/Footer';
 import Users from './Routes/Users';
 
 function App() {
