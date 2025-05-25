@@ -19,8 +19,6 @@ const Blog = () => {
   const { user } = useAuth();
   const [comments, setComments] = useState([]);
 
-
-  // Fetch blog data
   useEffect(() => {
     const fetchBlog = async () => {
       try {
@@ -34,11 +32,9 @@ const Blog = () => {
         console.error("Error fetching blog:", error);
       }
     };
-
     fetchBlog();
   }, [id]);
 
-  // Fetch comments with user profile images
   const fetchCommentsWithUserData = async (comments) => {
     return await Promise.all(
       comments.map(async (comment) => {
@@ -56,130 +52,126 @@ const Blog = () => {
     );
   };
 
-  // Handle comment submission
   const handleComment = async (e) => {
     e.preventDefault();
     if (!user) {
       alert("You need to be signed in to comment!");
       return;
     }
+    const usercomment = e.target.elements.comment.value.trim();
+    if (!usercomment) return;
 
-    const usercomment = e.target.elements.comment.value;
-
-    // Create a new comment object to show immediately in the UI
     const newComment = {
       user: user.username,
       comment: usercomment,
-      userProfile: user.profilePic || "/default-avatar.png", // Add the user profile picture
+      userProfile: user.profilePic || "/default-avatar.png",
     };
 
-    // Optimistically update the state with the new comment at the top
-    setComments((prev) => [newComment, ...prev]); // Adds new comment at the start
+    setComments((prev) => [newComment, ...prev]);
 
     try {
-      // Post the comment to the backend
       await dispatch(addComment({ blogId: id, usercomment })).unwrap();
-
-      // Re-fetch the updated comments from the backend
       const response = await api.get(`/blogs/${id}`);
       const updatedComments = await fetchCommentsWithUserData(
         response.data.comment
       );
-
-      // Reverse the comments array so the newest comment comes first
-      setComments(updatedComments.reverse()); // Set the latest comments
+      setComments(updatedComments.reverse());
     } catch (error) {
       console.error("Error adding comment:", error);
-      // Optionally, show an error message if the comment fails to post
     }
-
-    // Clear the textarea after submitting
     e.target.reset();
   };
 
-  // Generate blog body HTML
   useEffect(() => {
-    const bodyData = blog.body;
-    const dataJson = { type: "doc", content: bodyData };
+    if (!blog.body) return;
+    const dataJson = { type: "doc", content: blog.body };
     const htmlcontent = generateHTML(dataJson, [
       StarterKit,
       TextStyle,
       Color,
       Link,
     ]);
-
-
-
-    const sanitizedHTML = DOMPurify.sanitize(htmlcontent);
-    setHtml(sanitizedHTML);
+    setHtml(DOMPurify.sanitize(htmlcontent));
   }, [blog]);
 
   return (
-    <>
-      <div className="flex flex-col justify-center items-center pt-10">
-        <h1 className="text-4xl pb-7">BLOG DETAILS</h1>
-        <img src={blog.images} alt="Image" className="w-130" />
-        <h1 className="text-4xl font-bold py-5" >{blog.title}</h1>
-        <hr className=""/>
-        <div className="tiptap pl-5" dangerouslySetInnerHTML={{ __html: html }} />
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-white">
+      {/* Blog Header */}
+      <div className="mb-10 text-center">
+        <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-red-600 mb-4">
+          {blog.title || "Loading..."}
+        </h1>
+        {blog.images && (
+          <img
+            src={blog.images}
+            alt={blog.title}
+            className="mx-auto rounded-lg max-h-[400px] object-cover w-full sm:w-auto sm:max-w-3xl shadow-md"
+          />
+        )}
       </div>
 
-      {/* Comment Section */}
-      <div className="py-20">
-        <h2 className="text-4xl">Comments</h2>
-        <hr />
-        <form onSubmit={handleComment} className="mt-4 flex pl-5 gap-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-10"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"
-            />
-          </svg>
+      {/* Blog Content */}
+      <article
+        className="prose prose-lg max-w-none "
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
 
+      {/* Comments Section */}
+      <section className="mt-16">
+        <h2 className="text-3xl font-semibold mb-6 border-b border-gray-300 pb-2">
+          Comments
+        </h2>
+
+        {/* Comment Form */}
+        <form
+          onSubmit={handleComment}
+          className="flex flex-col sm:flex-row gap-4 items-start sm:items-center"
+        >
           <textarea
             name="comment"
-            className="outline-none border-b-2 p-2 w-4xl leading-2 "
-            placeholder="Write a comment..."
+            placeholder="Write your comment..."
+            rows={3}
+            className="flex-grow resize-none border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200"
+            required
           ></textarea>
           <button
-            className="bg-black hover:bg-white text-white hover:text-black font-bold px-3 py-1 rounded-full"
             type="submit"
+            className="mt-2 sm:mt-0 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md shadow-md transition"
           >
-            Post
+            Post Comment
           </button>
         </form>
 
-        {/* Display Comments */}
-        <div className="mt-8">
-          {comments.map((cmt,index) => (
+        {/* Comments List */}
+        <div className="mt-10 space-y-6">
+          {comments.length === 0 && (
+            <p className="text-gray-500 italic">
+              No comments yet. Be the first to comment!
+            </p>
+          )}
+
+          {comments.map((cmt, index) => (
             <div
               key={cmt._id || `temp-${index}`}
-              className="flex items-center gap-4 py-3 pl-7"
+              className="flex items-start gap-4 p-4 rounded-lg shadow-sm "
             >
               <img
-                src={cmt.userProfile || "/default-avatar.png"} // Profile picture
-                alt="User Avatar"
-                className="w-10 h-10 rounded-full object-cover"
+                src={cmt.userProfile || "/default-avatar.png"}
+                alt={`${cmt.user}'s avatar`}
+                className="w-12 h-12 rounded-full object-cover flex-shrink-0"
               />
               <div>
                 <h4 className="font-semibold">{cmt.user}</h4>
-                <p className="text-gray-700">{cmt.comment}</p>
+                <p className="mt-1 whitespace-pre-line">
+                  {cmt.comment}
+                </p>
               </div>
             </div>
           ))}
         </div>
-      </div>
-    </>
+      </section>
+    </div>
   );
 };
 
 export default Blog;
-

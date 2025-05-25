@@ -1,21 +1,50 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink } from "react-router-dom";
 
 const NoUserAbout = () => {
   return (
     <>
-    <div className="flex justify-center items-center flex-row-reverse px-7 relative pb-6 pt-2 border-b-1">
-      <ul className="flex flex-row gap-4 text-2xl absolute right-5 top-2">
+      <header className="flex justify-between items-center px-6 py-4 border-b border-gray-700 relative">
+        <h1 className="text-6xl sm:text-7xl md:text-8xl font-extrabold text-red-600 select-none">
+          BlogSite
+        </h1>
+        <nav>
+          <ul className="flex gap-6 text-lg md:text-xl font-semibold text-red-500">
             <li>
-              <NavLink to="/signin">Sign In</NavLink>
+              <NavLink
+                to="/signin"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-red-700 underline underline-offset-4"
+                    : "hover:text-red-700 transition"
+                }
+              >
+                Sign In
+              </NavLink>
             </li>
             <li>
-              <NavLink to="/signup">Sign Up</NavLink>
+              <NavLink
+                to="/signup"
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-red-700 underline underline-offset-4"
+                    : "hover:text-red-700 transition"
+                }
+              >
+                Sign Up
+              </NavLink>
             </li>
-      </ul>
-      <h1 className="text-9xl">BlogSite</h1>
-    </div>
-    <h1 className='text-4xl pt-20 pb-20 flex justify-center'>Sign in / Sign up to view this page</h1>
+          </ul>
+        </nav>
+      </header>
+
+      <main className="flex justify-center items-center min-h-[60vh] px-4">
+        <h2 className="text-center text-3xl sm:text-4xl md:text-5xl font-semibold text-gray-200 max-w-lg">
+          Please <span className="text-red-500">Sign In</span> or{" "}
+          <span className="text-red-500">Sign Up</span> to view this page.
+        </h2>
+      </main>
     </>
   );
-}
-export default NoUserAbout
+};
+
+export default NoUserAbout;

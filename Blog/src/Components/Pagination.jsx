@@ -5,9 +5,9 @@ const Pagination = ({
   onPageChange,
 }) => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const maxPageNumbersToShow = 5; // Limit the number of visible page numbers
+  const maxPageNumbersToShow = 5;
 
-  if (totalPages <= 1) return null; // No pagination needed if only one page
+  if (totalPages <= 1) return null;
 
   const getPageNumbers = () => {
     const pages = [];
@@ -28,38 +28,46 @@ const Pagination = ({
   };
 
   return (
-    <div className="flex items-center justify-center mt-6 gap-2">
+    <nav
+      aria-label="Pagination Navigation"
+      className="flex items-center justify-center mt-6 gap-3"
+    >
       <button
-        className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        className="px-4 py-2 rounded border border-gray-700 bg-gray-900 text-gray-300 hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition"
         disabled={currentPage === 1}
         onClick={() => onPageChange(currentPage - 1)}
+        aria-label="Previous page"
       >
         Prev
       </button>
 
-      {getPageNumbers().map((page, index) => (
+      {getPageNumbers().map((page, idx) => (
         <button
-          key={index}
-          className={`px-4 py-2 rounded ${
-            page === currentPage
-              ? "bg-black text-white"
-              : "bg-gray-200 hover:bg-gray-300"
-          }`}
+          key={idx}
           onClick={() => typeof page === "number" && onPageChange(page)}
           disabled={page === "..."}
+          aria-current={page === currentPage ? "page" : undefined}
+          className={`px-4 py-2 rounded border transition ${
+            page === currentPage
+              ? "bg-red-600 text-white font-semibold shadow-lg border-red-500"
+              : "bg-gray-900 text-gray-300 border-gray-700 hover:bg-gray-800 hover:text-white"
+          } ${
+            page === "..." ? "cursor-default text-gray-500" : "cursor-pointer"
+          }`}
         >
           {page}
         </button>
       ))}
 
       <button
-        className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        className="px-4 py-2 rounded border border-gray-700 bg-gray-900 text-gray-300 hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition"
         disabled={currentPage === totalPages}
         onClick={() => onPageChange(currentPage + 1)}
+        aria-label="Next page"
       >
         Next
       </button>
-    </div>
+    </nav>
   );
 };
 

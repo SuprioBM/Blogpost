@@ -1,93 +1,115 @@
 import { NavLink } from "react-router-dom";
-import useAuth  from "../context/useAuth";
+import useAuth from "../context/useAuth";
 import { useState, useEffect } from "react";
-import { refreshTokens } from "../Api/api"; // import your custom hook
+import { refreshTokens } from "../Api/api";
+import { FiUser, FiMenu, FiX } from "react-icons/fi";
 
 const Navbar = () => {
-
-
   const { user } = useAuth();
-  
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
-        await api.get("/profile", { withCredentials: true }); // Sends cookies with request
-        setIsAuthenticated(true); // If the request is successful, the user is authenticated
+        await api.get("/profile", { withCredentials: true });
+        setIsAuthenticated(true);
       } catch (error) {
-          refreshTokens();
-          setIsAuthenticated(false); // If there's an error, the user is not authenticated
-        }
-      };
+        refreshTokens();
+        setIsAuthenticated(false);
+      }
+    };
+    checkAuthStatus();
+  }, [user]);
 
-      checkAuthStatus(); // Call the function to check authentication on mount
-    }, [user]);
+  const links = [
+    { path: "/", label: "Home" },
+    { path: "/projects", label: "Projects" },
+    { path: "/about", label: "About" },
+    { path: "/user", label: "Users" },
+  ];
 
   return (
-    <nav className=" border-b-1 text-black sticky top-0 z-50 w-dvw overflow-hidden">
-      <ul className="flex gap-5 text-b  justify-between items-center p-5 text-2xl">
-        {!user ? (
-          <li>
-            ProfileName
-          </li>
-        ) : (
-          <li>
-           {user.toUpperCase()}
-          </li>
-        )}
-
-        <div className="flex space-x-5">
-          <li>
-            <NavLink
-              to="/"
-              className={({ isActive }) =>
-                `border-b-1 ${
-                  isActive ? "border-white" : "border-transparent"
-                } hover:border-white transition-all duration-300`
-              }
-            >
-              Home
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/projects"
-              className={({ isActive }) =>
-                `border-b-1 ${
-                  isActive ? "border-white" : "border-transparent"
-                } hover:border-white transition-all duration-300`
-              }
-            >
-              Projects
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/about"
-              className={({ isActive }) =>
-                `border-b-1 ${
-                  isActive ? "border-white" : "border-transparent"
-                } hover:border-white transition-all duration-300`
-              }
-            >
-              About
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
-              to="/user"
-              className={({ isActive }) =>
-                `border-b-1 ${
-                  isActive ? "border-black" : "border-transparent"
-                } hover:border-black transition-all duration-300`
-              }
-            >
-              Users
-            </NavLink>
-          </li>
+    <nav className="sticky top-0 z-50 w-full bg-white border-b border-gray-200 shadow-md">
+      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        {/* Logo / User */}
+        <div className="text-xl font-semibold text-red-800 flex items-center gap-2 select-none">
+          <FiUser className="text-red-500" />
+          {user ? user.toUpperCase() : "Guest"}
         </div>
-      </ul>
+
+        {/* Desktop Menu */}
+        <ul className="hidden md:flex gap-10 text-lg font-medium text-red-700">
+          {links.map(({ path, label }) => (
+            <li key={path}>
+              <NavLink
+                to={path}
+                className={({ isActive }) =>
+                  `relative pb-1 transition-colors duration-300 hover:text-red-500 ${
+                    isActive ? "text-red-600 font-semibold" : ""
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    {label}
+                    <span
+                      className={`absolute left-0 -bottom-0.5 h-[2px] w-full bg-red-500 transition-transform duration-300 ${
+                        isActive ? "scale-x-100" : "scale-x-0"
+                      }`}
+                      style={{ transformOrigin: "left" }}
+                    />
+                  </>
+                )}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+
+        {/* Hamburger Icon */}
+        <div className="md:hidden">
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="text-red-500 text-2xl focus:outline-none hover:text-red-600 transition-colors duration-200"
+            aria-label="Toggle Menu"
+          >
+            {isMenuOpen ? <FiX /> : <FiMenu />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMenuOpen && (
+        <div className="md:hidden bg- px-6 py-6 border-t border-gray-200 shadow-lg">
+          <ul className="flex flex-col gap-6 text-lg text-red-700">
+            {links.map(({ path, label }) => (
+              <li key={path}>
+                <NavLink
+                  to={path}
+                  onClick={() => setIsMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `block py-1 transition-colors duration-300 hover:text-red-500 ${
+                      isActive ? "text-red-600 font-semibold" : ""
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      {label}
+                      <span
+                        className={`block h-[2px] bg-red-500 mt-1 transition-transform duration-300 ${
+                          isActive ? "scale-x-100" : "scale-x-0"
+                        }`}
+                        style={{ transformOrigin: "left" }}
+                      />
+                    </>
+                  )}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </nav>
   );
 };

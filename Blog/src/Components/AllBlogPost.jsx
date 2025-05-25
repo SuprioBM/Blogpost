@@ -1,42 +1,57 @@
 import { useState } from "react";
 import Pagination from "./Pagination";
-import { Link, NavLink } from "react-router";
+import { NavLink } from "react-router";
 
 const AllBlogPost = ({ items }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 3; // Customize per page count
+  const itemsPerPage = 3;
 
-   const startIndex = (currentPage - 1) * itemsPerPage;
-   const currentItems = items.slice(startIndex, startIndex + itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentItems = items.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <>
-      <h1>All Blog Posts</h1>
-      <div className="grid grid-cols-3 gap-8 pt-7 px-15 w-7xl">
-        {currentItems.map((item, index) => (
-          <NavLink to={`/blog/${item.id}`}>
-          <div key={item.id} className="bg-black p-4 rounded-md">
-            {item.image && (
-              <img
-                src={item.image}
-                alt={item.title}
-                className="w-full h-auto object-cover rounded-md object-center"
-              />
-            )}
-            <h2 className="text-lg font-bold">{item.title}</h2>
-            <p className="truncate-text">{item.description}</p>
-          </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-white">
+      <h1 className="text-3xl font-bold text-center mb-8">
+        All Blog Posts
+      </h1>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {currentItems.map((item) => (
+          <NavLink key={item.id} to={`/blog/${item.id}`}>
+            <div className="bg-black shadow-md rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col">
+              {item.image ? (
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="w-full h-48 object-cover"
+                />
+              ) : (
+                <div className="w-full h-48 bg-gray-200 flex items-center justify-center ">
+                  No Image
+                </div>
+              )}
+              <div className="p-4 flex flex-col flex-grow">
+                <h2 className="text-xl font-semibold  mb-2 line-clamp-2">
+                  {item.title}
+                </h2>
+                <p className="text-sm line-clamp-3">
+                  {item.description}
+                </p>
+              </div>
+            </div>
           </NavLink>
         ))}
       </div>
-      {/* Pagination Component */}
-      <Pagination
-        totalItems={items.length}
-        itemsPerPage={itemsPerPage}
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-      />
-    </>
+
+      <div className="mt-10">
+        <Pagination
+          totalItems={items.length}
+          itemsPerPage={itemsPerPage}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+        />
+      </div>
+    </div>
   );
 };
 
