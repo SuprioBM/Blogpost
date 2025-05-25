@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { api } from "../Api/api";
-import Profile from "../Components/profile";
+import Profile from "../Components/Profile";
 
 const About = () => {
   const [skills, setSkills] = useState([""]);
