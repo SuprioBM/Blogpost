@@ -9,7 +9,7 @@ html, body {
 }
 
 nav{
-  background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(112,5,5,1) 49%, rgba(0,0,0,1) 100%);
+  background: linear-gradient(90deg,rgba(0, 0, 0, 1) 0%, rgba(110, 110, 110, 1) 52%, rgba(8, 0, 0, 1) 100%);
 }
 .img{
     width: 200px;
@@ -159,7 +159,7 @@ button {
 /* Images */
 .tiptap img {
   max-width: 100%;
-  height: auto;
+  width: 50%;
   border-radius: 5px;
   margin: 10px 0;
   display: block;
@@ -168,7 +168,8 @@ button {
 /* Videos */
 .tiptap video {
   max-width: 100%;
-  height: auto;
+  width: 50%;
+  aspect-ratio: 16 / 9;
   border-radius: 5px;
   margin: 10px 0;
   display: block;
@@ -204,4 +205,24 @@ button {
 
 .tiptap button:hover {
   background: #0056b3;
+}
+
+.ProseMirror-selectednode {
+  outline: 3px solid #3b82f6; /* Tailwind blue-500 */
+  border-radius: 8px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease forwards;
 }

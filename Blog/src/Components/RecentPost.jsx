@@ -20,8 +20,6 @@ const RecentPost = () => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const [menuOpen, setMenuOpen] = useState(false);
-
 
   const handleSignOut = async () => {
     try {
@@ -58,10 +56,8 @@ const RecentPost = () => {
         Color,
         Link,
       ]);
-
       const parser = new DOMParser();
       const doc = parser.parseFromString(htmls, "text/html");
-
       const paragraphs = [...doc.querySelectorAll("p")].map(
         (el) => el.innerText
       );
@@ -107,6 +103,7 @@ const RecentPost = () => {
       await dispatch(likeBlog(blogId));
     } catch (error) {
       console.error("Error liking blog:", error);
+      // revert UI state on error
       setBlogs((prevBlogs) =>
         prevBlogs.map((item) =>
           item.id === blogId
@@ -138,21 +135,21 @@ const RecentPost = () => {
   const remainingBlogs = sortedBlogs.slice(4);
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-black text-white mt-15 font-sans">
       {/* Header */}
-      <header className="flex justify-between items-center px-6 py-4 border-b bg-black shadow-sm sticky top-0 z-50">
-        <h1 className="text-7xl font-extrabold tracking-tight text-red-600 select-none pl-5">
+      <header className="flex justify-between items-center px-6 py-6 border-b border-gray-800 bg-black shadow-lg">
+        <h1 className="text-7xl font-extrabold tracking-tight select-none pl-9 lg:pl-5 sm:pl-50 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-600 to-red-500 animate-pulse">
           BlogSite
         </h1>
-        <nav className="hidden lg:flex lg:space-x-6 lg:text-lg lg:font-semibold lg:text-red-500 ">
+        <nav className="hidden lg:flex lg:space-x-8 lg:text-lg lg:font-semibold">
           {!user ? (
             <>
               <NavLink
                 to="/signin"
                 className={({ isActive }) =>
                   isActive
-                    ? "text-indigo-900 underline"
-                    : "hover:text-indigo-900 transition"
+                    ? "text-indigo-400 underline"
+                    : "hover:text-indigo-400 transition"
                 }
               >
                 Sign In
@@ -161,8 +158,8 @@ const RecentPost = () => {
                 to="/signup"
                 className={({ isActive }) =>
                   isActive
-                    ? "text-indigo-900 underline"
-                    : "hover:text-indigo-900 transition"
+                    ? "text-indigo-400 underline"
+                    : "hover:text-indigo-400 transition"
                 }
               >
                 Sign Up
@@ -171,7 +168,7 @@ const RecentPost = () => {
           ) : (
             <button
               onClick={handleSignOut}
-              className="text-red-600 hover:text-indigo-900 transition font-semibold"
+              className="hover:text-indigo-400 transition font-semibold"
             >
               Sign Out
             </button>
@@ -180,50 +177,76 @@ const RecentPost = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-8">
-        <h2 className="text-3xl font-semibold mb-6 border-l-4 border-red-600 pl-3">
+      <main className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-10">
+        <h2 className="text-4xl font-extrabold mb-8 border-l-8 border-indigo-600 pl-4 tracking-wide">
           Recent Blog Posts
         </h2>
         {loading ? (
-          <div className="text-center py-20 text-xl font-medium ">
-            Loading...
+          <div className="flex justify-center items-center py-20">
+            <svg
+              className="animate-spin h-10 w-10 text-indigo-600"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8z"
+              ></path>
+            </svg>
           </div>
         ) : (
-          <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {recentPosts.map((item, index) => (
               <article
                 key={item.id}
-                className="bg-black rounded-xl shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow duration-300"
+                className="bg-gray-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col transform transition-transform duration-300 hover:scale-[1.05] hover:shadow-indigo-500/50 animate-fadeIn"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
                 {item.image && (
                   <img
                     src={item.image}
                     alt={item.title}
                     loading="lazy"
-                    className="h-48 w-full object-cover object-center"
+                    className="h-56 w-full object-cover object-center"
                   />
                 )}
-                <div className="p-5 flex flex-col flex-grow">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-xl font-bold line-clamp-2">
+                <div className="p-6 flex flex-col flex-grow">
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="text-2xl font-bold line-clamp-2 text-indigo-300 hover:text-indigo-500 transition">
                       {item.title}
                     </h3>
                     <NavLink
                       to={`/blog/${item.id}`}
-                      className="ml-3 text-red-600 hover:text-red-800 transition"
+                      className="ml-3 transition text-indigo-400 hover:text-indigo-600"
                       aria-label={`Read more about ${item.title}`}
                     >
-                      <ArrowIcon />
+                      <ArrowIcon className="w-6 h-6" />
                     </NavLink>
                   </div>
-                  <p className="flex-grow line-clamp-3 mb-4">
+                  <p className="flex-grow line-clamp-3 mb-6 text-gray-300">
                     {item.description}
                   </p>
 
-                  <div className="flex items-center gap-3 mt-auto">
+                  <div className="flex items-center gap-4 mt-auto">
                     <button
                       onClick={() => handleLike(item.id)}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-red-600 text-red-600 hover:bg-indigo-600 hover:text-white transition focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                      className={`flex items-center gap-2 px-4 py-2 rounded-full border border-indigo-600 
+                        transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-400
+                        ${
+                          item.likedUsers.includes(user)
+                            ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                            : "hover:bg-indigo-600 hover:text-white text-indigo-300"
+                        }`}
                       aria-pressed={item.likedUsers.includes(user)}
                     >
                       <svg
@@ -232,7 +255,7 @@ const RecentPost = () => {
                         viewBox="0 0 24 24"
                         strokeWidth={1.5}
                         stroke="currentColor"
-                        className="w-5 h-5"
+                        className="w-6 h-6"
                       >
                         <path
                           strokeLinecap="round"
@@ -240,11 +263,11 @@ const RecentPost = () => {
                           d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
                         />
                       </svg>
-                      <span>{item.like}</span>
+                      <span className="font-semibold text-lg">{item.like}</span>
                     </button>
                     <button
                       onClick={() => handleComment(item.id)}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-red-600 text-red-600 hover:bg-indigo-600 hover:text-white transition focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                      className="flex items-center gap-2 px-4 py-2 rounded-full border border-indigo-600 text-indigo-300 hover:bg-indigo-600 hover:text-white transition focus:outline-none focus:ring-2 focus:ring-indigo-400"
                       aria-label={`View comments for ${item.title}`}
                     >
                       <svg
@@ -253,7 +276,7 @@ const RecentPost = () => {
                         viewBox="0 0 24 24"
                         strokeWidth={1.5}
                         stroke="currentColor"
-                        className="w-5 h-5"
+                        className="w-6 h-6"
                       >
                         <path
                           strokeLinecap="round"
@@ -261,7 +284,9 @@ const RecentPost = () => {
                           d="M8.625 9.75a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 0 1 .778-.332 48.294 48.294 0 0 0 5.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"
                         />
                       </svg>
-                      <span>{item.commentCount}</span>
+                      <span className="font-semibold text-lg">
+                        {item.commentCount}
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -271,7 +296,7 @@ const RecentPost = () => {
         )}
 
         {/* Remaining Blogs Section */}
-        <section className="mt-14">
+        <section className="mt-20">
           <AllBlogPost items={remainingBlogs} />
         </section>
       </main>

@@ -3,95 +3,108 @@ import Cookies from "js-cookie";
 import { api } from "../Api/api";
 import Profile from "../Components/Profile";
 import NoUserAbout from "../Components/NoUserAbout";
+import { motion } from "framer-motion";
+
+const DynamicInputList = ({ label, items, setItems, placeholder }) => {
+  const handleChange = (idx, value) => {
+    const newItems = [...items];
+    newItems[idx] = value;
+    setItems(newItems);
+  };
+
+  const handleAdd = () => setItems([...items, ""]);
+  const handleRemove = (idx) => setItems(items.filter((_, i) => i !== idx));
+
+  return (
+    <div>
+      <label className="block mb-3 text-sm font-semibold text-gradient bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
+        {label}
+      </label>
+      {items.map((item, idx) => (
+        <motion.div
+          key={idx}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: idx * 0.1 }}
+          className="flex items-center space-x-3 mb-3"
+        >
+          <input
+            type="text"
+            value={item}
+            onChange={(e) => handleChange(idx, e.target.value)}
+            placeholder={placeholder}
+            className="flex-grow px-4 py-2 bg-black/40 backdrop-blur-sm border border-transparent rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-shadow"
+          />
+          <button
+            type="button"
+            onClick={() => handleRemove(idx)}
+            className="text-pink-400 hover:text-pink-600 font-extrabold text-xl select-none transition-transform hover:scale-110"
+            aria-label={`Remove ${label.toLowerCase()} ${idx + 1}`}
+          >
+            &times;
+          </button>
+        </motion.div>
+      ))}
+      <button
+        type="button"
+        onClick={handleAdd}
+        className="mt-1 text-sm font-semibold text-pink-400 hover:text-pink-600 underline underline-offset-2 transition-colors"
+      >
+        + Add Another {label.slice(0, -1)}
+      </button>
+    </div>
+  );
+};
 
 const About = () => {
   const [skills, setSkills] = useState([""]);
   const [experience, setExperience] = useState([""]);
   const [education, setEducation] = useState([""]);
-  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [uploadImage, setUploadImage] = useState(null);
 
-  const [exist, setExist] = useState(null);
+  const [profileExists, setProfileExists] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isEdited, setIsEdited] = useState(null); // user cookie
+  const [username, setUsername] = useState(null);
 
-  // Read user cookie once on mount
   useEffect(() => {
-    const userCookie = Cookies.get("user");
-    console.log("User cookie:", userCookie);
-    setIsEdited(userCookie || null);
+    const user = Cookies.get("user") || null;
+    setUsername(user);
+    if (!user) setLoading(false);
   }, []);
 
-  // Fetch profile existence when isEdited is known
   useEffect(() => {
-    if (!isEdited) {
-      setExist(false);
-      setLoading(false);
-      return;
-    }
+    if (!username) return;
 
-    const checkAuthStatus = async () => {
+    const checkProfile = async () => {
       try {
         const res = await api.get("/profile", { withCredentials: true });
-        console.log("Profile API response:", res.data);
-        setExist(res.data.exists);
-      } catch (error) {
-        console.error("Profile API error:", error);
-        setExist(false);
+        setProfileExists(res.data.exists);
+      } catch {
+        setProfileExists(false);
       } finally {
         setLoading(false);
       }
     };
 
-    checkAuthStatus();
-  }, [isEdited]);
+    checkProfile();
+  }, [username]);
 
-  // Handlers for dynamic lists
-  const handleAddSkill = () => setSkills([...skills, ""]);
-  const handleAddExperience = () => setExperience([...experience, ""]);
-  const handleAddEducation = () => setEducation([...education, ""]);
-
-  const handleChange = (index, value, type) => {
-    const updatedArray = [
-      ...(type === "skills"
-        ? skills
-        : type === "experience"
-        ? experience
-        : education),
-    ];
-    updatedArray[index] = value;
-    if (type === "skills") setSkills(updatedArray);
-    if (type === "experience") setExperience(updatedArray);
-    if (type === "education") setEducation(updatedArray);
-  };
-
-  const handleRemove = (index, type) => {
-    if (type === "skills") setSkills(skills.filter((_, i) => i !== index));
-    if (type === "experience")
-      setExperience(experience.filter((_, i) => i !== index));
-    if (type === "education")
-      setEducation(education.filter((_, i) => i !== index));
-  };
-
-  // Image upload preview
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setUploadImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
+    if (!file) return;
+
+    setUploadImage(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setImagePreview(reader.result);
+    reader.readAsDataURL(file);
   };
 
-  // Form submit
-  const handleForm = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    formData.append("username", isEdited);
-    formData.append("file", uploadImage);
+    formData.append("username", username);
+    if (uploadImage) formData.append("file", uploadImage);
     formData.append("skills", JSON.stringify(skills));
     formData.append("exps", JSON.stringify(experience));
     formData.append("edus", JSON.stringify(education));
@@ -100,11 +113,7 @@ const About = () => {
       const res = await api.post(
         `${import.meta.env.VITE_BACKEND_URL}/user_details`,
         formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
       alert(res.data.message);
       window.location.reload();
@@ -113,186 +122,119 @@ const About = () => {
     }
   };
 
-  // Rendering logic
-
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen text-red-500 text-xl">
+      <div className="flex justify-center items-center min-h-screen text-pink-500 text-xl font-semibold tracking-wide">
         Loading...
       </div>
     );
   }
 
-  if (!isEdited) {
-    // Not logged in
+  if (!username) {
     return (
-      <div className="flex justify-center items-center min-h-screen text-red-500 text-xl px-4">
-        <NoUserAbout/>
+      <div className="flex justify-center items-center min-h-screen text-pink-500 text-xl px-4">
+        <NoUserAbout />
       </div>
     );
   }
 
-  if (!exist) {
-    // Logged in but no profile -> show edit form
+  if (!profileExists) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-black text-white px-4">
-        <div className="w-full max-w-2xl bg-[#1a1a1a] p-8 rounded-xl shadow-lg border border-red-600">
-          <h2 className="text-3xl font-bold text-center text-red-500 mb-6">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-tr from-black via-gray-900 to-black px-4 py-35">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="w-full max-w-2xl bg-black/70 backdrop-blur-lg p-10 rounded-3xl shadow-2xl border border-pink-600"
+        >
+          <h2 className="text-4xl font-extrabold text-pink-500 mb-10 tracking-widest text-center drop-shadow-lg">
             Edit Your Profile
           </h2>
-          <form className="space-y-6" onSubmit={handleForm}>
+          <form onSubmit={handleSubmit} className="space-y-8">
             <div>
-              <label className="block mb-1 text-sm text-red-400">
+              <label
+                htmlFor="about"
+                className="block mb-3 text-sm font-semibold text-pink-400 tracking-wide"
+              >
                 About Me:
               </label>
               <textarea
-                rows="4"
-                id="aboutme"
+                id="about"
                 name="about"
-                className="w-full p-3 bg-black border border-red-500 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600"
+                rows={4}
                 placeholder="Tell us about yourself"
+                className="w-full p-4 bg-black/40 backdrop-blur-sm border border-transparent rounded-xl text-white placeholder-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-shadow"
               />
             </div>
 
-            <div>
-              <label className="block mb-1 text-sm text-red-400">Skills:</label>
-              {skills.map((skill, index) => (
-                <div key={index} className="flex items-center space-x-2 mt-2">
-                  <input
-                    type="text"
-                    value={skill}
-                    onChange={(e) =>
-                      handleChange(index, e.target.value, "skills")
-                    }
-                    className="w-full p-2 bg-black border border-red-500 rounded-md focus:outline-none"
-                    placeholder="Add a skill"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemove(index, "skills")}
-                    className="text-red-400 hover:text-red-600"
-                  >
-                    ✖
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={handleAddSkill}
-                className="mt-2 text-sm text-red-400 hover:underline"
-              >
-                + Add Another Skill
-              </button>
-            </div>
+            <DynamicInputList
+              label="Skills"
+              items={skills}
+              setItems={setSkills}
+              placeholder="Add a skill"
+            />
 
-            <div>
-              <label className="block mb-1 text-sm text-red-400">
-                Experience:
-              </label>
-              {experience.map((exp, index) => (
-                <div key={index} className="flex items-center space-x-2 mt-2">
-                  <input
-                    type="text"
-                    value={exp}
-                    onChange={(e) =>
-                      handleChange(index, e.target.value, "experience")
-                    }
-                    className="w-full p-2 bg-black border border-red-500 rounded-md focus:outline-none"
-                    placeholder="Add experience"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemove(index, "experience")}
-                    className="text-red-400 hover:text-red-600"
-                  >
-                    ✖
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={handleAddExperience}
-                className="mt-2 text-sm text-red-400 hover:underline"
-              >
-                + Add Another Experience
-              </button>
-            </div>
+            <DynamicInputList
+              label="Experience"
+              items={experience}
+              setItems={setExperience}
+              placeholder="Add experience"
+            />
 
-            <div>
-              <label className="block mb-1 text-sm text-red-400">
-                Education:
-              </label>
-              {education.map((edu, index) => (
-                <div key={index} className="flex items-center space-x-2 mt-2">
-                  <input
-                    type="text"
-                    value={edu}
-                    onChange={(e) =>
-                      handleChange(index, e.target.value, "education")
-                    }
-                    className="w-full p-2 bg-black border border-red-500 rounded-md focus:outline-none"
-                    placeholder="Add education"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemove(index, "education")}
-                    className="text-red-400 hover:text-red-600"
-                  >
-                    ✖
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={handleAddEducation}
-                className="mt-2 text-sm text-red-400 hover:underline"
-              >
-                + Add Another Education
-              </button>
-            </div>
+            <DynamicInputList
+              label="Education"
+              items={education}
+              setItems={setEducation}
+              placeholder="Add education"
+            />
 
             <div>
               <label
                 htmlFor="file_input"
-                className="block mb-2 text-sm text-red-400"
+                className="block mb-3 text-sm font-semibold text-pink-400 tracking-wide"
               >
                 Upload Profile Image
               </label>
               <input
                 id="file_input"
                 type="file"
+                accept="image/*"
                 onChange={handleImageUpload}
-                className="block w-full p-2 bg-black text-white border border-red-500 rounded-md cursor-pointer"
+                className="block w-full p-3 bg-black/40 text-pink-300 border border-pink-500 rounded-xl cursor-pointer transition hover:border-pink-600"
               />
-              {image && (
-                <div className="mt-4">
+              {imagePreview && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4 }}
+                  className="mt-6 flex justify-center"
+                >
                   <img
-                    src={image}
-                    alt="Preview"
-                    className="w-24 h-24 object-cover rounded-full border-2 border-red-600"
+                    src={imagePreview}
+                    alt="Profile Preview"
+                    className="w-28 h-28 object-cover rounded-full border-4 border-pink-600 shadow-lg"
                   />
-                </div>
+                </motion.div>
               )}
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-2 text-xs text-pink-300 italic select-none">
                 Supported formats: JPG, PNG, GIF. Max size: 800x400px.
               </p>
             </div>
 
-            <div>
-              <button
-                type="submit"
-                className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-300"
-              >
-                Submit Profile
-              </button>
-            </div>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              type="submit"
+              className="w-full py-4 bg-gradient-to-r from-pink-600 to-red-600 text-white font-bold rounded-3xl shadow-lg drop-shadow-pink transition-shadow"
+            >
+              Submit Profile
+            </motion.button>
           </form>
-        </div>
+        </motion.div>
       </div>
     );
   }
 
-  // Profile exists, render Profile component
   return <Profile />;
 };
 

@@ -29,16 +29,15 @@ const Pagination = ({
 
   return (
     <nav
-      aria-label="Pagination Navigation"
-      className="flex items-center justify-center mt-6 gap-3"
+      aria-label="Pagination"
+      className="flex flex-wrap items-center justify-center mt-8 gap-2 sm:gap-3"
     >
       <button
-        className="px-4 py-2 rounded border border-gray-700 bg-gray-900 text-gray-300 hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition"
-        disabled={currentPage === 1}
         onClick={() => onPageChange(currentPage - 1)}
-        aria-label="Previous page"
+        disabled={currentPage === 1}
+        className="px-4 py-2 rounded-full border border-gray-700 bg-gray-800 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Prev
+        ← Prev
       </button>
 
       {getPageNumbers().map((page, idx) => (
@@ -47,10 +46,10 @@ const Pagination = ({
           onClick={() => typeof page === "number" && onPageChange(page)}
           disabled={page === "..."}
           aria-current={page === currentPage ? "page" : undefined}
-          className={`px-4 py-2 rounded border transition ${
+          className={`px-4 py-2 rounded-full text-sm transition font-medium ${
             page === currentPage
-              ? "bg-red-600 text-white font-semibold shadow-lg border-red-500"
-              : "bg-gray-900 text-gray-300 border-gray-700 hover:bg-gray-800 hover:text-white"
+              ? "bg-indigo-600 text-white shadow-md"
+              : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
           } ${
             page === "..." ? "cursor-default text-gray-500" : "cursor-pointer"
           }`}
@@ -60,12 +59,11 @@ const Pagination = ({
       ))}
 
       <button
-        className="px-4 py-2 rounded border border-gray-700 bg-gray-900 text-gray-300 hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition"
-        disabled={currentPage === totalPages}
         onClick={() => onPageChange(currentPage + 1)}
-        aria-label="Next page"
+        disabled={currentPage === totalPages}
+        className="px-4 py-2 rounded-full border border-gray-700 bg-gray-800 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Next
+        Next →
       </button>
     </nav>
   );

@@ -4,42 +4,32 @@ import Tiptap from "../Components/TipTap";
 import { api } from "../Api/api";
 
 const Projects = () => {
+  const [showEditor, setShowEditor] = useState(false);
+  const [title, setTitle] = useState("");
+  const [category, setCategory] = useState("");
   const [imageUrls, setImageUrls] = useState([]);
   const [videoUrls, setVideoUrls] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Convert a blob URL to a File object
   const blobToFile = async (blobUrl, fileName) => {
-    try {
-      const response = await fetch(blobUrl);
-      const blob = await response.blob();
-      return new File([blob], fileName, { type: blob.type });
-    } catch (err) {
-      console.error("Error converting blob URL to file:", err);
-      throw err;
-    }
+    const response = await fetch(blobUrl);
+    const blob = await response.blob();
+    return new File([blob], fileName, { type: blob.type });
   };
 
-  // Upload a file to Cloudinary and return the secure URL
   const uploadToCloudinary = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "Blog_media");
 
-    try {
-      const response = await axios.post(
-        "https://api.cloudinary.com/v1_1/dichjqacx/upload",
-        formData
-      );
-      return response.data.secure_url;
-    } catch (err) {
-      console.error("Cloudinary upload failed:", err);
-      throw err;
-    }
+    const response = await axios.post(
+      "https://api.cloudinary.com/v1_1/dichjqacx/upload",
+      formData
+    );
+    return response.data.secure_url;
   };
 
-  // Save handler triggered on Tiptap editor save
   const EditorSave = async (json) => {
     setLoading(true);
     setError(null);
@@ -48,38 +38,29 @@ const Projects = () => {
     const videos = [];
 
     try {
-      // Process content nodes for images and videos
       for (const item of json.content) {
         if ((item.type === "image" || item.type === "video") && item.src) {
           const ext = item.type === "image" ? "jpg" : "mp4";
           const fileName = `${item.type}_${Date.now()}.${ext}`;
-
-          try {
-            const file = await blobToFile(item.src, fileName);
-            const url = await uploadToCloudinary(file);
-
-            if (item.type === "image") images.push(url);
-            else videos.push(url);
-          } catch (uploadError) {
-            console.error(`Failed to upload ${item.type}:`, uploadError);
-          }
+          const file = await blobToFile(item.src, fileName);
+          const url = await uploadToCloudinary(file);
+          item.type === "image" ? images.push(url) : videos.push(url);
         }
       }
 
-      // Remove image/video nodes from content before saving
       const filteredContent = json.content.filter(
         (node) => node.type !== "image" && node.type !== "video"
       );
 
-      // Prepare updated payload including uploaded media URLs
       const updatedJson = {
         ...json,
+        title,
+        category,
         content: filteredContent,
         images,
         videos,
       };
 
-      // Post updated blog content to backend
       const res = await api.post(
         `${import.meta.env.VITE_BACKEND_URL}/blogcreate`,
         updatedJson,
@@ -88,71 +69,89 @@ const Projects = () => {
 
       setImageUrls(images);
       setVideoUrls(videos);
-
       alert("Blog saved successfully!");
       return res.data;
-    } catch (saveError) {
-      setError(saveError?.response?.data?.message || saveError.message);
-      alert(error);
-      console.error("Error saving blog:", saveError);
+    } catch (err) {
+      setError(err?.response?.data?.message || err.message);
+      alert(err?.response?.data?.message || err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 sm:p-6">
-      <h2 className="text-3xl font-semibold mb-6 text-center text-white">
-        Create / Edit Project Blog
-      </h2>
-
-      <Tiptap onSave={EditorSave} />
-
-      {loading && (
-        <p className="text-indigo-600 font-medium mt-4 text-center ">
-          Uploading and saving...
+    <div className="max-w-4xl mx-auto p-4 sm:p-6 mt-10 space-y-8 text-white">
+      <div className="text-center">
+        <h2
+          className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 
+               my-12 text-[3rem] sm:text-[4rem] md:text-[5rem] leading-tight
+               animate-pulse"
+          style={{ animationTimingFunction: "ease-in-out" }}
+        >
+          Ignite Your Creativity
+          <br />
+          Create Epic Blog Posts
+        </h2>
+        <p className="text-gray-300 max-w-3xl mx-auto text-lg sm:text-xl md:text-2xl font-light tracking-wide">
+          Dive into a world where your words come alive. Add a compelling title,
+          select your category, craft stunning content, and enrich it with
+          vibrant images and videos. Your story deserves to be told like never
+          before.
         </p>
-      )}
-
-      {error && (
-        <p className="text-red-600 font-semibold mt-4 text-center">{error}</p>
-      )}
-
-      {(imageUrls.length > 0 || videoUrls.length > 0) && (
-        <section className="mt-10 max-w-xl mx-auto">
-          <h3 className="text-xl font-semibold mb-4 text-center">
-            Uploaded Media Preview
-          </h3>
-
-          <div className="flex space-x-4 overflow-x-auto py-2">
-            {imageUrls.map((url, idx) => (
-              <div
-                key={`img-${idx}`}
-                className="flex-shrink-0 w-22 h-10 rounded-md shadow-md overflow-hidden"
-              >
-                <img
-                  src={url}
-                  alt={`Uploaded Image ${idx + 1}`}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-            ))}
-
-            {videoUrls.map((url, idx) => (
-              <div
-                key={`vid-${idx}`}
-                className="flex-shrink-0 w-32 h-20 rounded-md shadow-md overflow-hidden"
-              >
-                <video
-                  controls
-                  src={url}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ))}
+      </div>
+      {!showEditor ? (
+        <div className="flex justify-center">
+        <button
+          onClick={() => setShowEditor(true)}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-md font-semibold"
+        >
+          Create Blog
+        </button>
+        </div>
+      ) : (
+        <>
+          {/* Title Input */}
+          <div className="rounded-md shadow p-4 text-white">
+            <label className="block text-sm font-medium mb-1">Title</label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded px-3 py-2"
+              placeholder="Enter blog title..."
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
           </div>
-        </section>
+
+          {/* Category Input */}
+          <div className="rounded-md shadow p-4 text-white">
+            <label className="block text-sm font-medium mb-1">Category</label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded px-3 py-2"
+              placeholder="e.g., Development, Travel, Tips"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            />
+          </div>
+
+          {/* Editor Box */}
+          <div className="rounded-md shadow p-4 text-white">
+            <h2 className="font-semibold mb-2 text-center text-5xl ">
+              Blog Content
+            </h2>
+            <Tiptap onSave={EditorSave} />
+            {loading && (
+              <p className="text-indigo-600 font-medium mt-4 text-center">
+                Uploading and saving...
+              </p>
+            )}
+            {error && (
+              <p className="text-red-600 font-semibold mt-4 text-center">
+                {error}
+              </p>
+            )}
+          </div>
+        </>
       )}
     </div>
   );
