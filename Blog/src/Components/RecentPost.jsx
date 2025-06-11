@@ -136,45 +136,12 @@ const RecentPost = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-black text-white mt-15 font-sans">
-      {/* Header */}
-      <header className="flex justify-between items-center px-6 py-6 border-b border-gray-800 bg-black shadow-lg">
-        <h1 className="text-7xl font-extrabold tracking-tight select-none pl-9 lg:pl-5 sm:pl-50 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-600 to-red-500 animate-pulse">
+      <header className="flex justify-center items-center px-6 py-6 border-b border-gray-800 bg-black shadow-lg">
+        <h1 className="text-[5rem] lg:text-[7rem] sm:[text-7rem] mr-4 font-extrabold tracking-tight select-none pl-9 lg:pl-5 sm:pl-50 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-600 to-red-500 animate-pulse">
           BlogSite
         </h1>
-        <nav className="hidden lg:flex lg:space-x-8 lg:text-lg lg:font-semibold">
-          {!user ? (
-            <>
-              <NavLink
-                to="/signin"
-                className={({ isActive }) =>
-                  isActive
-                    ? "text-indigo-400 underline"
-                    : "hover:text-indigo-400 transition"
-                }
-              >
-                Sign In
-              </NavLink>
-              <NavLink
-                to="/signup"
-                className={({ isActive }) =>
-                  isActive
-                    ? "text-indigo-400 underline"
-                    : "hover:text-indigo-400 transition"
-                }
-              >
-                Sign Up
-              </NavLink>
-            </>
-          ) : (
-            <button
-              onClick={handleSignOut}
-              className="hover:text-indigo-400 transition font-semibold"
-            >
-              Sign Out
-            </button>
-          )}
-        </nav>
-      </header>
+       
+</header>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-10">
