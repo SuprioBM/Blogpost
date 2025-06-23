@@ -12,12 +12,14 @@ const Projects = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Convert blob URL to File object
   const blobToFile = async (blobUrl, fileName) => {
     const response = await fetch(blobUrl);
     const blob = await response.blob();
     return new File([blob], fileName, { type: blob.type });
   };
 
+  // Upload file to Cloudinary
   const uploadToCloudinary = async (file) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -30,6 +32,7 @@ const Projects = () => {
     return response.data.secure_url;
   };
 
+  // Save editor content and media
   const EditorSave = async (json) => {
     setLoading(true);
     setError(null);
@@ -48,6 +51,7 @@ const Projects = () => {
         }
       }
 
+      // Filter out media from content before sending to backend
       const filteredContent = json.content.filter(
         (node) => node.type !== "image" && node.type !== "video"
       );
@@ -83,10 +87,10 @@ const Projects = () => {
     <div className="max-w-4xl mx-auto p-4 sm:p-6 mt-10 space-y-8 text-white">
       <div className="text-center">
         <h2
-          className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 
-               my-12 text-[3rem] sm:text-[4rem] md:text-[5rem] leading-tight
-               animate-pulse"
+          className="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500
+                    my-12 text-[3rem] sm:text-[4rem] md:text-[5rem] leading-tight animate-pulse"
           style={{ animationTimingFunction: "ease-in-out" }}
+          tabIndex={0}
         >
           Ignite Your Creativity
           <br />
@@ -99,54 +103,66 @@ const Projects = () => {
           before.
         </p>
       </div>
+
       {!showEditor ? (
         <div className="flex justify-center">
-        <button
-          onClick={() => setShowEditor(true)}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-md font-semibold"
-        >
-          Create Blog
-        </button>
+          <button
+            onClick={() => setShowEditor(true)}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-md font-semibold transition-shadow shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            aria-label="Open blog editor"
+          >
+            Create Blog
+          </button>
         </div>
       ) : (
         <>
           {/* Title Input */}
-          <div className="rounded-md shadow p-4 text-white">
-            <label className="block text-sm font-medium mb-1">Title</label>
+          <div className="rounded-md shadow p-4 text-white bg-black/40 backdrop-blur-sm">
+            <label htmlFor="blog-title" className="block text-sm font-medium mb-1">
+              Title
+            </label>
             <input
+              id="blog-title"
               type="text"
-              className="w-full border border-gray-300 rounded px-3 py-2"
+              className="w-full border border-gray-600 rounded px-3 py-2 bg-transparent text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
               placeholder="Enter blog title..."
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              required
+              aria-required="true"
             />
           </div>
 
           {/* Category Input */}
-          <div className="rounded-md shadow p-4 text-white">
-            <label className="block text-sm font-medium mb-1">Category</label>
+          <div className="rounded-md shadow p-4 text-white bg-black/40 backdrop-blur-sm">
+            <label htmlFor="blog-category" className="block text-sm font-medium mb-1">
+              Category
+            </label>
             <input
+              id="blog-category"
               type="text"
-              className="w-full border border-gray-300 rounded px-3 py-2"
+              className="w-full border border-gray-600 rounded px-3 py-2 bg-transparent text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 transition"
               placeholder="e.g., Development, Travel, Tips"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
+              required
+              aria-required="true"
             />
           </div>
 
           {/* Editor Box */}
-          <div className="rounded-md shadow p-4 text-white">
-            <h2 className="font-semibold mb-2 text-center text-5xl ">
+          <div className="rounded-md shadow p-4 text-white bg-black/40 backdrop-blur-sm">
+            <h2 className="font-semibold mb-2 text-center text-3xl sm:text-4xl">
               Blog Content
             </h2>
             <Tiptap onSave={EditorSave} />
             {loading && (
-              <p className="text-indigo-600 font-medium mt-4 text-center">
+              <p className="text-indigo-400 font-medium mt-4 text-center animate-pulse">
                 Uploading and saving...
               </p>
             )}
             {error && (
-              <p className="text-red-600 font-semibold mt-4 text-center">
+              <p className="text-red-600 font-semibold mt-4 text-center" role="alert">
                 {error}
               </p>
             )}
