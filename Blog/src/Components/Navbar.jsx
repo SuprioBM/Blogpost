@@ -12,12 +12,13 @@ const Navbar = () => {
   const [prevScrollPos, setPrevScrollPos] = useState(window.pageYOffset);
   const [visible, setVisible] = useState(true);
 
+  // Check auth status on mount and user changes
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
         await api.get("/profile", { withCredentials: true });
         setIsAuthenticated(true);
-      } catch (error) {
+      } catch {
         refreshTokens();
         setIsAuthenticated(false);
       }
@@ -25,6 +26,7 @@ const Navbar = () => {
     checkAuthStatus();
   }, [user]);
 
+  // Hide/show navbar on scroll up/down
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollPos = window.pageYOffset;
@@ -35,7 +37,6 @@ const Navbar = () => {
       const isAtTop = currentScrollPos <= 10;
       const isAtBottom = currentScrollPos + windowHeight >= docHeight - 10;
 
-      // Show navbar if scrolling up and not at bottom OR if at top
       if ((isScrollingUp && !isAtBottom) || isAtTop) {
         setVisible(true);
       } else {
@@ -68,12 +69,14 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 transition-transform duration-500 ease-in-out bg-gray-900 shadow-lg z-50 ${
+      className={`fixed top-0 left-0 right-0 z-50 bg-gray-900 shadow-lg transition-transform duration-500 ease-in-out ${
         visible ? "translate-y-0" : "-translate-y-full"
       }`}
+      role="navigation"
+      aria-label="Main navigation"
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        {/* Logo / User */}
+        {/* Logo / User Info */}
         <div className="flex items-center gap-3 select-none">
           <div className="p-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full text-white text-xl">
             <FiUser />
@@ -133,6 +136,7 @@ const Navbar = () => {
             <button
               onClick={handleSignOut}
               className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-semibold transition"
+              aria-label="Sign out"
             >
               Sign Out
             </button>
@@ -144,7 +148,7 @@ const Navbar = () => {
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="text-white text-3xl focus:outline-none hover:text-indigo-400 transition"
-            aria-label="Toggle Menu"
+            aria-label="Toggle menu"
             aria-expanded={isMenuOpen}
           >
             {isMenuOpen ? <FiX /> : <FiMenu />}
@@ -207,6 +211,7 @@ const Navbar = () => {
             <button
               onClick={handleSignOut}
               className="w-full text-left text-indigo-400 font-semibold hover:text-indigo-600 transition py-1"
+              aria-label="Sign out"
             >
               Sign Out
             </button>
