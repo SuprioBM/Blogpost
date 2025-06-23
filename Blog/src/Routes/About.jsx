@@ -17,7 +17,10 @@ const DynamicInputList = ({ label, items, setItems, placeholder }) => {
 
   return (
     <div>
-      <label className="block mb-3 text-sm font-semibold text-gradient bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
+      <label
+        className="block mb-3 text-sm font-semibold text-gradient bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500"
+        aria-label={label}
+      >
         {label}
       </label>
       {items.map((item, idx) => (
@@ -33,12 +36,14 @@ const DynamicInputList = ({ label, items, setItems, placeholder }) => {
             value={item}
             onChange={(e) => handleChange(idx, e.target.value)}
             placeholder={placeholder}
-            className="flex-grow px-4 py-2 bg-black/40 backdrop-blur-sm border border-transparent rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-shadow"
+            className="flex-grow px-4 py-2 bg-black/40 backdrop-blur-sm border border-transparent rounded-lg text-white placeholder-gray-400
+              focus:outline-none focus:ring-2 focus:ring-pink-500 transition-shadow"
+            aria-label={`${label} input ${idx + 1}`}
           />
           <button
             type="button"
             onClick={() => handleRemove(idx)}
-            className="text-pink-400 hover:text-pink-600 font-extrabold text-xl select-none transition-transform hover:scale-110"
+            className="text-pink-400 hover:text-pink-600 font-extrabold text-xl select-none transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-pink-500 rounded"
             aria-label={`Remove ${label.toLowerCase()} ${idx + 1}`}
           >
             &times;
@@ -48,7 +53,8 @@ const DynamicInputList = ({ label, items, setItems, placeholder }) => {
       <button
         type="button"
         onClick={handleAdd}
-        className="mt-1 text-sm font-semibold text-pink-400 hover:text-pink-600 underline underline-offset-2 transition-colors"
+        className="mt-1 text-sm font-semibold text-pink-400 hover:text-pink-600 underline underline-offset-2 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-500 rounded"
+        aria-label={`Add another ${label.slice(0, -1)}`}
       >
         + Add Another {label.slice(0, -1)}
       </button>
@@ -140,7 +146,7 @@ const About = () => {
 
   if (!profileExists) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-tr from-black via-gray-900 to-black px-4 py-35">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-tr from-black via-gray-900 to-black px-4 py-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -163,7 +169,9 @@ const About = () => {
                 name="about"
                 rows={4}
                 placeholder="Tell us about yourself"
-                className="w-full p-4 bg-black/40 backdrop-blur-sm border border-transparent rounded-xl text-white placeholder-pink-300 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-shadow"
+                className="w-full p-4 bg-black/40 backdrop-blur-sm border border-transparent rounded-xl text-white placeholder-pink-300
+                  focus:outline-none focus:ring-2 focus:ring-pink-500 transition-shadow resize-none"
+                aria-label="About Me"
               />
             </div>
 
@@ -200,7 +208,9 @@ const About = () => {
                 type="file"
                 accept="image/*"
                 onChange={handleImageUpload}
-                className="block w-full p-3 bg-black/40 text-pink-300 border border-pink-500 rounded-xl cursor-pointer transition hover:border-pink-600"
+                className="block w-full p-3 bg-black/40 text-pink-300 border border-pink-500 rounded-xl cursor-pointer
+                  transition hover:border-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                aria-describedby="image-upload-desc"
               />
               {imagePreview && (
                 <motion.div
@@ -216,7 +226,10 @@ const About = () => {
                   />
                 </motion.div>
               )}
-              <p className="mt-2 text-xs text-pink-300 italic select-none">
+              <p
+                id="image-upload-desc"
+                className="mt-2 text-xs text-pink-300 italic select-none"
+              >
                 Supported formats: JPG, PNG, GIF. Max size: 800x400px.
               </p>
             </div>
@@ -225,7 +238,8 @@ const About = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               type="submit"
-              className="w-full py-4 bg-gradient-to-r from-pink-600 to-red-600 text-white font-bold rounded-3xl shadow-lg drop-shadow-pink transition-shadow"
+              className="w-full py-4 bg-gradient-to-r from-pink-600 to-red-600 text-white font-bold rounded-3xl shadow-lg drop-shadow-pink transition-shadow focus:outline-none focus:ring-4 focus:ring-pink-500"
+              aria-label="Submit Profile"
             >
               Submit Profile
             </motion.button>
