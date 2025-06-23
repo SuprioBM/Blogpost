@@ -35,13 +35,12 @@ const RecentPost = () => {
       try {
         const res = await api.get("/fetchblogs");
         setHtml(res.data);
-        setLoading(false);
       } catch (error) {
-        console.log(error);
+        console.error(error);
+      } finally {
         setLoading(false);
       }
     };
-
     fetchBlogData();
   }, []);
 
@@ -50,17 +49,10 @@ const RecentPost = () => {
     const processedBlogs = html.map((data) => {
       const bodyData = data.body;
       const dataJson = { type: "doc", content: bodyData };
-      const htmls = generateHTML(dataJson, [
-        StarterKit,
-        TextStyle,
-        Color,
-        Link,
-      ]);
+      const htmls = generateHTML(dataJson, [StarterKit, TextStyle, Color, Link]);
       const parser = new DOMParser();
       const doc = parser.parseFromString(htmls, "text/html");
-      const paragraphs = [...doc.querySelectorAll("p")].map(
-        (el) => el.innerText
-      );
+      const paragraphs = [...doc.querySelectorAll("p")].map((el) => el.innerText);
 
       return {
         id: data._id,
@@ -88,9 +80,7 @@ const RecentPost = () => {
         item.id === blogId
           ? {
               ...item,
-              like: item.likedUsers.includes(user)
-                ? item.like - 1
-                : item.like + 1,
+              like: item.likedUsers.includes(user) ? item.like - 1 : item.like + 1,
               likedUsers: item.likedUsers.includes(user)
                 ? item.likedUsers.filter((u) => u !== user)
                 : [...item.likedUsers, user],
@@ -109,9 +99,7 @@ const RecentPost = () => {
           item.id === blogId
             ? {
                 ...item,
-                like: item.likedUsers.includes(user)
-                  ? item.like + 1
-                  : item.like - 1,
+                like: item.likedUsers.includes(user) ? item.like + 1 : item.like - 1,
                 likedUsers: item.likedUsers.includes(user)
                   ? [...item.likedUsers, user]
                   : item.likedUsers.filter((u) => u !== user),
@@ -135,26 +123,35 @@ const RecentPost = () => {
   const remainingBlogs = sortedBlogs.slice(4);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-black text-white mt-15 font-sans">
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-black text-white mt-14 font-sans">
       <header className="flex justify-center items-center px-6 py-6 border-b border-gray-800 bg-black shadow-lg">
-        <h1 className="text-[5rem] lg:text-[7rem] sm:[text-7rem] mr-4 font-extrabold tracking-tight select-none pl-9 lg:pl-5 sm:pl-50 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-600 to-red-500 animate-pulse">
+        <h1
+          className="text-5xl sm:text-7xl font-extrabold tracking-tight select-none 
+            pl-8 sm:pl-12 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-600 to-red-500 animate-pulse"
+          aria-label="BlogSite"
+        >
           BlogSite
         </h1>
-       
-</header>
+      </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-10">
-        <h2 className="text-4xl font-extrabold mb-8 border-l-8 border-indigo-600 pl-4 tracking-wide">
+      <main className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-10">
+        <h2 className="text-4xl font-extrabold mb-10 border-l-8 border-indigo-600 pl-5 tracking-wide">
           Recent Blog Posts
         </h2>
         {loading ? (
-          <div className="flex justify-center items-center py-20">
+          <div
+            className="flex justify-center items-center py-20"
+            role="status"
+            aria-live="polite"
+            aria-label="Loading recent blog posts"
+          >
             <svg
               className="animate-spin h-10 w-10 text-indigo-600"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <circle
                 className="opacity-25"
@@ -172,12 +169,14 @@ const RecentPost = () => {
             </svg>
           </div>
         ) : (
-          <div className="grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {recentPosts.map((item, index) => (
               <article
                 key={item.id}
-                className="bg-gray-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col transform transition-transform duration-300 hover:scale-[1.05] hover:shadow-indigo-500/50 animate-fadeIn"
+                className="bg-gray-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col
+                transform transition-transform duration-300 hover:scale-105 hover:shadow-indigo-500/60 animate-fadeIn"
                 style={{ animationDelay: `${index * 100}ms` }}
+                aria-label={`Blog post titled ${item.title}`}
               >
                 {item.image && (
                   <img
@@ -189,32 +188,36 @@ const RecentPost = () => {
                 )}
                 <div className="p-6 flex flex-col flex-grow">
                   <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-2xl font-bold line-clamp-2 text-indigo-300 hover:text-indigo-500 transition">
+                    <h3
+                      className="text-2xl font-semibold line-clamp-2 text-indigo-300 hover:text-indigo-500 transition-colors cursor-pointer"
+                      tabIndex={0}
+                    >
                       {item.title}
                     </h3>
                     <NavLink
                       to={`/blog/${item.id}`}
-                      className="ml-3 transition text-indigo-400 hover:text-indigo-600"
+                      className="ml-3 transition text-indigo-400 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-400 rounded"
                       aria-label={`Read more about ${item.title}`}
                     >
                       <ArrowIcon className="w-6 h-6" />
                     </NavLink>
                   </div>
-                  <p className="flex-grow line-clamp-3 mb-6 text-gray-300">
+                  <p className="flex-grow line-clamp-3 mb-6 text-gray-300 leading-relaxed">
                     {item.description}
                   </p>
 
                   <div className="flex items-center gap-4 mt-auto">
                     <button
                       onClick={() => handleLike(item.id)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-full border border-indigo-600 
-                        transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-400
-                        ${
-                          item.likedUsers.includes(user)
-                            ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                            : "hover:bg-indigo-600 hover:text-white text-indigo-300"
-                        }`}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-full border border-indigo-600
+                      transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-400
+                      ${
+                        item.likedUsers.includes(user)
+                          ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                          : "hover:bg-indigo-600 hover:text-white text-indigo-300"
+                      }`}
                       aria-pressed={item.likedUsers.includes(user)}
+                      aria-label={item.likedUsers.includes(user) ? "Unlike post" : "Like post"}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -223,6 +226,7 @@ const RecentPost = () => {
                         strokeWidth={1.5}
                         stroke="currentColor"
                         className="w-6 h-6"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -244,6 +248,7 @@ const RecentPost = () => {
                         strokeWidth={1.5}
                         stroke="currentColor"
                         className="w-6 h-6"
+                        aria-hidden="true"
                       >
                         <path
                           strokeLinecap="round"
@@ -251,9 +256,7 @@ const RecentPost = () => {
                           d="M8.625 9.75a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 0 1 .778-.332 48.294 48.294 0 0 0 5.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z"
                         />
                       </svg>
-                      <span className="font-semibold text-lg">
-                        {item.commentCount}
-                      </span>
+                      <span className="font-semibold text-lg">{item.commentCount}</span>
                     </button>
                   </div>
                 </div>
