@@ -97,7 +97,9 @@ const Blog = () => {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
-      className="max-w-6xl mx-auto px-6 py-16 text-white rounded-lg shadow-2xl mt-12"
+      className="max-w-6xl mx-auto px-6 py-16 text-white rounded-lg shadow-2xl mt-12 bg-gradient-to-br from-gray-900 via-black to-gray-800"
+      role="main"
+      aria-label="Blog post content"
     >
       <motion.div
         className="mb-12 text-center"
@@ -105,7 +107,10 @@ const Blog = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <h1 className="text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-600">
+        <h1
+          className="text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-600 select-text"
+          tabIndex={0}
+        >
           {blog.title || "Loading..."}
         </h1>
         {blog.images && (
@@ -116,6 +121,7 @@ const Blog = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
+            loading="lazy"
           />
         )}
       </motion.div>
@@ -126,27 +132,36 @@ const Blog = () => {
       />
 
       <section className="mt-20">
-        <h2 className="text-4xl font-bold text-cyan-400 mb-6">Discussion</h2>
+        <h2
+          className="text-4xl font-bold text-cyan-400 mb-6"
+          tabIndex={0}
+          aria-label="Discussion section"
+        >
+          Discussion
+        </h2>
 
-        <form onSubmit={handleComment} className="space-y-4 mb-12">
+        <form onSubmit={handleComment} className="space-y-4 mb-12" aria-label="Add comment form">
           <textarea
             name="comment"
             placeholder="Leave your feedback..."
             rows={4}
-            className="w-full p-4 rounded-xl bg-black/30 text-white border border-gray-600 focus:ring-2 focus:ring-cyan-500 backdrop-blur-sm"
+            className="w-full p-4 rounded-xl bg-black/30 text-white border border-gray-600 focus:ring-2 focus:ring-cyan-500 backdrop-blur-sm resize-none transition-shadow"
             required
+            aria-required="true"
+            aria-label="Comment input"
           />
           <button
             type="submit"
-            className="px-6 py-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 text-white font-bold shadow-md transition"
+            className="px-6 py-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 text-white font-bold shadow-md transition focus:outline-none focus:ring-4 focus:ring-cyan-400"
+            aria-label="Submit comment"
           >
             Submit
           </button>
         </form>
 
-        <div className="space-y-6">
+        <div className="space-y-6" aria-live="polite" aria-relevant="additions">
           {comments.length === 0 ? (
-            <p className="text-gray-400 italic">
+            <p className="text-gray-400 italic" tabIndex={0}>
               Be the first to leave a comment!
             </p>
           ) : (
@@ -158,17 +173,19 @@ const Blog = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
                 className="flex items-start gap-4 bg-white/5 backdrop-blur-lg p-5 rounded-lg shadow-md border border-white/10"
+                tabIndex={-1}
+                role="article"
+                aria-label={`Comment by ${cmt.user}`}
               >
                 <img
                   src={cmt.userProfile}
                   alt={`${cmt.user}'s avatar`}
-                  className="w-12 h-12 rounded-full object-cover"
+                  className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                  loading="lazy"
                 />
                 <div>
                   <h4 className="font-semibold text-white">{cmt.user}</h4>
-                  <p className="mt-1 text-gray-300 whitespace-pre-line">
-                    {cmt.comment}
-                  </p>
+                  <p className="mt-1 text-gray-300 whitespace-pre-line">{cmt.comment}</p>
                 </div>
               </motion.div>
             ))
