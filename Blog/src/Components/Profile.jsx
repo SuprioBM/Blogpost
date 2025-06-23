@@ -28,14 +28,16 @@ const Profile = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7, ease: "easeOut" }}
-      className="min-h-screen max-w-6xl mx-auto px-8 py-35 bg-black/70 backdrop-blur-lg rounded-3xl shadow-2xl text-gray-200"
+      className="min-h-screen max-w-6xl mx-auto px-8 py-20 bg-black/70 backdrop-blur-lg rounded-3xl shadow-2xl text-gray-200"
+      role="main"
+      aria-label="User profile"
     >
       <div className="flex flex-col md:flex-row gap-12">
         {/* Sidebar */}
         <aside className="flex flex-col items-center md:items-start md:w-1/3 sticky top-24 self-start space-y-6">
           <motion.img
             src={userData.img}
-            alt={`${userData.username}'s profile`}
+            alt={`${userData.username}'s profile picture`}
             className="w-44 h-44 rounded-full object-cover border-4 border-gradient-to-tr from-red-500 via-pink-600 to-purple-700 shadow-xl"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -59,8 +61,9 @@ const Profile = () => {
             { title: "Experience", content: userData.exp, isList: true },
             { title: "Education", content: userData.edu, isList: true },
           ].map(({ title, content, isList }) => (
-            <section key={title}>
+            <section key={title} aria-labelledby={`${title.toLowerCase().replace(/\s+/g, "-")}-heading`}>
               <motion.h2
+                id={`${title.toLowerCase().replace(/\s+/g, "-")}-heading`}
                 className="text-3xl font-semibold mb-6 bg-gradient-to-r from-pink-500 via-red-600 to-yellow-400 bg-clip-text text-transparent tracking-wider"
                 initial={{ y: 15, opacity: 0 }}
                 whileInView={{ y: 0, opacity: 1 }}
