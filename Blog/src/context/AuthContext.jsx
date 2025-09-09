@@ -16,7 +16,7 @@ function AuthProvider({ children }) {
   const signin = (username) => {
     setUser(username);
     Cookies.set("user", username, {
-      secure: window.location.protocol === "https:",
+      secure: true,
       sameSite: "None", // or "None" if cross-origin
     });
   };
