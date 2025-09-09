@@ -15,7 +15,10 @@ function AuthProvider({ children }) {
   // Login function to set the user
   const signin = (username) => {
     setUser(username);
-    Cookies.set("user",username,{secure:true})
+    Cookies.set("user", username, {
+      secure: window.location.protocol === "https:",
+      sameSite: "None", // or "None" if cross-origin
+    });
   };
 
   
