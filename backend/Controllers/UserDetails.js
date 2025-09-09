@@ -92,6 +92,8 @@ const UpdateDetails = async (req, res) => {
 
 const getUserDetails = async(req,res) =>{
     const username = req.cookies.user;
+    console.log(username);
+    
     if (!username) return res.status(401).json({ error: "No User Found" });
     try {
         const userdata = await UserInfo.findOne({ username });
