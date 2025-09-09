@@ -74,6 +74,12 @@ const SignIn = async(req,res) =>{
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
+      res.cookie("user", user.username, {
+        path: "/",
+        secure: true,
+        sameSite: "None",
+      });
+
       res.status(200).json({userid: user._id, message: "Logged in successfully" });
     } catch (err) {
       console.log(err)
