@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Pagination from "./Pagination";
-import { NavLink } from "react-router-dom"; // fixed import from react-router-dom
+import { NavLink } from "react-router-dom";
 
 const AllBlogPost = ({ items }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -9,8 +9,19 @@ const AllBlogPost = ({ items }) => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentItems = items.slice(startIndex, startIndex + itemsPerPage);
 
+  const totalPages = Math.ceil(items.length / itemsPerPage);
+
+  // Handle Prev/Next page buttons
+  const goToPrev = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const goToNext = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-12 text-white">
+    <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-12 text-gray-100 bg-gray-900 min-h-screen">
       <h1 className="text-4xl font-extrabold text-center mb-12 tracking-wide border-b-4 border-indigo-600 pb-3">
         All Blog Posts
       </h1>
@@ -20,7 +31,7 @@ const AllBlogPost = ({ items }) => {
           <NavLink
             key={item.id}
             to={`/blog/${item.id}`}
-            className="transform transition duration-300 hover:scale-[1.04] hover:shadow-2xl shadow-lg rounded-2xl bg-gradient-to-tr from-gray-900 via-black to-gray-900 overflow-hidden flex flex-col animate-fadeIn"
+            className="transform transition duration-300 hover:scale-105 hover:shadow-xl shadow-lg rounded-2xl bg-gradient-to-tr from-gray-900 via-gray-800 to-gray-900 overflow-hidden flex flex-col animate-fadeIn will-change-transform will-change-opacity"
             style={{ animationDelay: `${index * 150}ms` }}
           >
             {item.image ? (
@@ -52,10 +63,10 @@ const AllBlogPost = ({ items }) => {
               </div>
             )}
             <div className="p-6 flex flex-col flex-grow">
-              <h2 className="text-2xl font-semibold text-indigo-300 hover:text-indigo-500 transition line-clamp-2 mb-3">
+              <h2 className="text-2xl font-semibold text-gray-100 hover:text-indigo-400 transition line-clamp-2 mb-3 tracking-wide">
                 {item.title}
               </h2>
-              <p className="text-gray-400 text-sm line-clamp-3 flex-grow">
+              <p className="text-gray-300 text-sm line-clamp-3 flex-grow">
                 {item.description}
               </p>
             </div>
@@ -63,7 +74,21 @@ const AllBlogPost = ({ items }) => {
         ))}
       </div>
 
-      <div className="mt-12 flex justify-center">
+      {/* Pagination */}
+      <div className="mt-12 flex justify-center items-center space-x-3 select-none">
+        <button
+          onClick={goToPrev}
+          disabled={currentPage === 1}
+          aria-disabled={currentPage === 1}
+          className={`px-4 py-2 rounded-lg transition ${
+            currentPage === 1
+              ? "bg-gray-700 cursor-not-allowed text-gray-400"
+              : "bg-indigo-700 text-white hover:bg-indigo-600"
+          }`}
+        >
+          Previous
+        </button>
+
         <Pagination
           totalItems={items.length}
           itemsPerPage={itemsPerPage}
@@ -72,7 +97,21 @@ const AllBlogPost = ({ items }) => {
           className="space-x-2"
           buttonClassName="px-4 py-2 rounded-lg bg-indigo-700 text-white hover:bg-indigo-600 transition"
           activeButtonClassName="bg-indigo-500 shadow-lg"
+          aria-current="page"
         />
+
+        <button
+          onClick={goToNext}
+          disabled={currentPage === totalPages}
+          aria-disabled={currentPage === totalPages}
+          className={`px-4 py-2 rounded-lg transition ${
+            currentPage === totalPages
+              ? "bg-gray-700 cursor-not-allowed text-gray-400"
+              : "bg-indigo-700 text-white hover:bg-indigo-600"
+          }`}
+        >
+          Next
+        </button>
       </div>
     </div>
   );

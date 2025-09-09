@@ -146,47 +146,50 @@ const Users = () => {
     setIsChatOpen(false);
   };
 
-    
-    if (!user) {
-      return (
-        <div className="flex justify-center items-center min-h-screen text-pink-500 text-xl px-4">
-          <NoUserAbout />
-        </div>
-      );
-    }
+  if (!user) {
+    return (
+      <div className="flex justify-center items-center min-h-screen text-pink-500 text-xl px-4">
+        <NoUserAbout />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen p-6 md:p-10 text-white mt-13">
-      <h2 className="text-4xl font-bold mb-8 text-center tracking-widest text-indigo-500">
+    <div className="min-h-screen p-6 md:p-12 text-white mt-16 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
+      <h2 className="text-4xl font-extrabold mb-12 text-center tracking-widest text-indigo-400 drop-shadow-lg">
         🌐 Connect with Users
       </h2>
 
       <motion.div
         layout
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-7xl mx-auto"
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 max-w-7xl mx-auto"
       >
         {users.map((people) => (
           <motion.div
             key={people._id}
             layout
-            whileHover={{ scale: 1.03 }}
-            className="relative bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-xl shadow-xl p-5 flex items-center gap-4 cursor-pointer transition duration-300 border border-indigo-600 hover:border-indigo-400"
+            whileHover={{ scale: 1.05 }}
+            className="relative bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-900 rounded-2xl shadow-lg p-6 flex items-center gap-5 cursor-pointer border-2 border-indigo-500 hover:border-indigo-400 transition-shadow duration-300"
             onClick={() => handleChatClick(people.username)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === "Enter" && handleChatClick(people.username)}
+            aria-label={`Chat with ${people.username}`}
           >
             <img
               src={people.img || "/default-avatar.png"}
-              alt={people.username}
-              className="w-14 h-14 rounded-full object-cover border-2 border-indigo-500"
+              alt={`${people.username}'s avatar`}
+              className="w-16 h-16 rounded-full object-cover border-4 border-indigo-400 shadow-md"
             />
             <div className="flex flex-col">
-              <p className="text-xl font-semibold text-indigo-300">
+              <p className="text-2xl font-semibold text-indigo-300 tracking-wide">
                 {people.username}
               </p>
               <span
                 className={`text-sm font-medium ${
                   onlineUsers.includes(people.username)
                     ? "text-green-400"
-                    : "text-gray-500"
+                    : "text-gray-400"
                 }`}
               >
                 {onlineUsers.includes(people.username) ? "Online" : "Offline"}
@@ -194,7 +197,7 @@ const Users = () => {
             </div>
 
             {unreadMessages[people.username] > 0 && (
-              <span className="absolute top-2 right-3 bg-red-600 text-white text-xs px-2 py-1 rounded-full font-semibold">
+              <span className="absolute top-3 right-4 bg-red-600 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-lg animate-pulse">
                 {unreadMessages[people.username]}
               </span>
             )}
@@ -205,25 +208,32 @@ const Users = () => {
       <AnimatePresence>
         {isChatOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: 60 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            transition={{ duration: 0.3 }}
-            className="fixed bottom-5 right-5 max-w-[90vw] lg:max-w-[40vw] w-full bg-gray-900/90 backdrop-blur-lg border border-indigo-600 rounded-2xl shadow-2xl flex flex-col max-h-[80vh]"
+            exit={{ opacity: 0, y: 60 }}
+            transition={{ duration: 0.4 }}
+            className="fixed bottom-6 right-6 max-w-[95vw] sm:max-w-[420px] w-full bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-900 backdrop-blur-md border border-indigo-600 rounded-3xl shadow-2xl flex flex-col max-h-[85vh]"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="chat-title"
           >
-            <div className="flex items-center justify-between p-4 border-b border-gray-700 rounded-t-2xl">
-              <h3 className="text-2xl font-semibold text-indigo-300">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-indigo-700 rounded-t-3xl">
+              <h3
+                id="chat-title"
+                className="text-2xl font-bold text-indigo-300 tracking-wide select-none"
+              >
                 💬 Chat with {chatWith}
               </h3>
               <button
                 onClick={closeChatBox}
-                className="text-gray-400 hover:text-indigo-400 transition"
+                className="text-indigo-400 hover:text-indigo-200 transition text-2xl focus:outline-none"
+                aria-label="Close chat"
               >
                 ✖
               </button>
             </div>
 
-            <div className="flex-1 p-4 overflow-y-auto space-y-4 scrollbar-thin scrollbar-thumb-indigo-600 scrollbar-track-gray-800">
+            <div className="flex-1 px-6 py-4 overflow-y-auto space-y-5 scrollbar-thin scrollbar-thumb-indigo-600 scrollbar-track-indigo-900">
               {messages.map((msg, idx) => {
                 const isSender = msg.sender === user;
                 return (
@@ -235,18 +245,18 @@ const Users = () => {
                     }`}
                   >
                     <div
-                      className={`px-4 py-2 rounded-2xl shadow-md whitespace-pre-wrap ${
+                      className={`px-5 py-3 rounded-3xl shadow-lg whitespace-pre-wrap break-words ${
                         isSender
                           ? "bg-indigo-600 text-white rounded-br-none"
-                          : "bg-gray-700 text-gray-100 rounded-bl-none"
+                          : "bg-indigo-700 text-indigo-100 rounded-bl-none"
                       }`}
                     >
-                      <p className="text-sm font-semibold mb-1">
+                      <p className="text-sm font-semibold mb-1 tracking-wide select-none">
                         {isSender ? "You" : msg.sender}
                       </p>
-                      <p className="text-base leading-snug">{msg.message}</p>
+                      <p className="text-base leading-relaxed">{msg.message}</p>
                     </div>
-                    <span className="text-xs text-gray-500 mt-1">
+                    <span className="text-xs text-indigo-400 mt-1 select-none">
                       {new Date(msg.timestamp).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -258,12 +268,12 @@ const Users = () => {
               <div ref={messagesEndRef} />
             </div>
 
-            <div className="p-4 border-t border-gray-700 flex gap-3 rounded-b-2xl bg-gray-800">
+            <div className="px-6 py-4 border-t border-indigo-700 flex gap-4 rounded-b-3xl bg-indigo-900">
               <textarea
                 rows={1}
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                className="flex-1 resize-none rounded-xl bg-gray-700 text-white placeholder-gray-400 p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 scrollbar-thin scrollbar-thumb-indigo-600 scrollbar-track-gray-800"
+                className="flex-1 resize-none rounded-2xl bg-indigo-800 text-indigo-200 placeholder-indigo-400 p-4 focus:outline-none focus:ring-2 focus:ring-indigo-400 scrollbar-thin scrollbar-thumb-indigo-600 scrollbar-track-indigo-900"
                 placeholder="Type a message..."
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
@@ -271,10 +281,12 @@ const Users = () => {
                     handleSendMessage();
                   }
                 }}
+                aria-label="Type your message"
               />
               <button
                 onClick={handleSendMessage}
-                className="bg-indigo-600 hover:bg-indigo-700 rounded-xl px-5 py-3 font-semibold transition shadow-md"
+                className="bg-indigo-500 hover:bg-indigo-600 rounded-2xl px-6 py-3 font-semibold transition-shadow shadow-lg text-white flex items-center justify-center"
+                aria-label="Send message"
               >
                 ➤
               </button>
