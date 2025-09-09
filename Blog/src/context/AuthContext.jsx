@@ -15,7 +15,7 @@ function AuthProvider({ children }) {
   // Login function to set the user
   const signin = (username) => {
     setUser(username);
-    Cookies.set("user",username,{secure:true,sameSite:"Lax"})
+    Cookies.set("user",username,{secure:true,sameSite:"None"})
   };
 
   
