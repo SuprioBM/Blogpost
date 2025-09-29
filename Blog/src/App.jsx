@@ -10,11 +10,13 @@ import Blog from './Routes/Blog';
 import { AuthProvider } from './context/AuthContext';
 import Footer from './Components/Footer';
 import Users from './Routes/Users';
+import { Analytics } from "@vercel/analytics/react";
 
 function App() {
 
   return (
     <AuthProvider>
+    <Analytics />
     <Router>
       <Navbar />
       <Routes>
